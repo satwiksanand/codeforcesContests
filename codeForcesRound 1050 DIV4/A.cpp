@@ -11,6 +11,9 @@ int32_t main()
     cin >> tt;
     while (tt--)
     {
+        int x, n;
+        cin >> x >> n;
+        cout << (n % 2 == 0 ? 0 : x) << "\n";
     }
     return 0;
 }
