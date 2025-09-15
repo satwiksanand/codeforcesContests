@@ -2,7 +2,7 @@
 using namespace std;
 #define int long long
 
-const int N = 2e5;
+const int inf = INT_MAX;
 
 int32_t main()
 {
@@ -16,85 +16,88 @@ int32_t main()
         int n = 0;
         cin >> n;
         vector<vector<int>> arr(n + 1);
-        vector<int> allSize(n + 1);
-        int maxSizeAll = 0;
-        int k = 0;
-        int minval = INT_MAX;
+        vector<int> sizes(n + 1);
+        int minval = inf;
         for (int i = 1; i <= n; ++i)
         {
+            int k = 0;
             cin >> k;
-            allSize[i] = k;
-            maxSizeAll = max(maxSizeAll, k);
+            sizes[i] = k;
             arr[i].resize(k + 1);
-            int val = 0;
             for (int j = 1; j <= k; ++j)
             {
-                cin >> val;
-                arr[i][j] = val;
+                cin >> arr[i][j];
                 if (j == 1)
                 {
-                    minval = min(minval, val);
+                    minval = min(minval, arr[i][j]);
                 }
             }
         }
-        vector<vector<int>> ind(maxSizeAll + 1);
+        int maxSize = *max_element(sizes.begin(), sizes.end());
+        vector<vector<int>> ind(maxSize + 1);
+        set<int> allInd;
         for (int i = 1; i <= n; ++i)
         {
-            for (int j = 1; j <= allSize[i]; ++j)
+            for (int j = 1; j <= sizes[i]; ++j)
             {
                 ind[j].push_back(i);
+            }
+            if (arr[i][1] == minval)
+            {
+                allInd.insert(i);
             }
         }
         vector<int> ans;
         ans.push_back(minval);
-        int minSize = INT_MAX;
-        for (int i = 1; i <= n; ++i)
+        for (int col = 2; col <= maxSize; ++col)
         {
-            if (arr[i][1] == minval)
+            int newMinVal = inf, allMinVal = inf;
+            bool can = false;
+            for (int which : allInd)
             {
-                minSize = min(minSize, (int)arr[i].size() - 1);
-            }
-        }
-        // cout << "print:->\n";
-        // cout << minval << " " << minSize << "\n";
-        // int lol = 0LL;
-        for (int col = 2; col <= maxSizeAll; ++col)
-        {
-            // lol += 1;
-            int newMinval = INT_MAX;
-            int allMin = INT_MAX;
-            bool can = minSize < col;
-            for (int which : ind[col])
-            {
-                if (arr[which].size() >= col)
+                if (sizes[which] < col)
                 {
-                    allMin = min(allMin, arr[which][col]);
-                }
-                if (arr[which][col - 1] == minval && arr[which].size() >= col)
-                {
-                    newMinval = min(newMinval, arr[which][col]);
+                    can = true;
+                    break;
                 }
             }
             if (can)
             {
-                minval = allMin;
+                for (int which : ind[col])
+                {
+                    newMinVal = min(newMinVal, arr[which][col]);
+                }
+                allInd.clear();
+                minval = newMinVal;
+                for (int which : ind[col])
+                {
+                    if (arr[which][col] == minval)
+                    {
+                        allInd.insert(which);
+                    }
+                }
+                ans.push_back(minval);
             }
             else
             {
-                minval = newMinval;
-            }
-            int newMinSize = INT_MAX;
-            for (int which : ind[col])
-            {
-                if (arr[which][col] == minval)
+                vector<int> tempInd;
+                for (int which : allInd)
                 {
-                    newMinSize = min(newMinSize, (int)arr[which].size() - 1);
+                    newMinVal = min(newMinVal, arr[which][col]);
+                    tempInd.push_back(which);
                 }
+                allInd.clear();
+                minval = newMinVal;
+                for (int which : tempInd)
+                {
+                    if (arr[which][col] == minval)
+                    {
+                        allInd.insert(which);
+                    }
+                }
+                ans.push_back(minval);
             }
-            minSize = newMinSize;
-            ans.push_back(minval);
         }
-        // cout << "lol:-> " << lol << "\n";
         for (int val : ans)
         {
             cout << val << " ";
